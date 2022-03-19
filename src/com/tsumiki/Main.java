@@ -7,6 +7,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main {
 
     public static void main(String[] args) {
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+        System.out.println(wordle.getAnswers().size());
+        wordle.ApplyGuess("adieu".toCharArray(),new byte[]{1,0,0,1,1});
+        System.out.println(wordle.getAnswers().size());
+        wordle.ApplyGuess("snort".toCharArray(),new byte[]{2,0,0,0,1});
+        System.out.println(wordle.getAnswers().size());
+    }
+
+    private static char[][] GetWords(){
         ArrayList<String> wordList = new ArrayList<>();
         BufferedReader reader = null;
         try{
@@ -38,12 +47,6 @@ public class Main {
 
             i.getAndIncrement();
         });
-
-        for (char[] word : words) {
-            for (char c : word) {
-                System.out.print(c);
-            }
-            System.out.println(" - ");
-        }
+        return words;
     }
 }
