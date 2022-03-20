@@ -1,22 +1,42 @@
 package com.tsumiki;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
 
-    public static void main(String[] args) {
-        WordleGuesser wordle = new WordleGuesser(GetWords());
-        System.out.println(wordle.getAnswers().size());
+    public static void main(String[] args){
+        TestApplyGuess();
+        TestProtoGuess();
+    }
 
-        MarkTime();
-        wordle.ApplyGuess("adieu".toCharArray(),new byte[]{1,0,0,1,1});
-        MarkTime();
+    private static final int iters = 10000;
+    private static void TestApplyGuess(){
+        long time = 0;
+        for(int i = 0; i < iters; i++){
+            WordleGuesser wordle = new WordleGuesser(GetWords());
+            time -= System.nanoTime();
+            wordle.ApplyGuess("adieu".toCharArray(), new byte[]{1,0,0,1,1});
+            time += System.nanoTime();
+        }
+        time /= iters;
+        System.out.println("Method ApplyGuess");
+        System.out.printf("Average time: %,d\n", time);
+    }
 
-        System.out.println(wordle.getAnswers().size());
-        wordle.ApplyGuess("snort".toCharArray(),new byte[]{2,0,0,0,1});
-        System.out.println(wordle.getAnswers().size());
+    private static void TestProtoGuess(){
+        long time = 0;
+        for(int i = 0; i < iters; i++){
+            WordleGuesser wordle = new WordleGuesser(GetWords());
+            time -= System.nanoTime();
+            wordle.ProtoApplyGuess("adieu".toCharArray(), new byte[]{1,0,0,1,1});
+            time += System.nanoTime();
+        }
+        time /= iters;
+        System.out.println("Method ProtoApplyGuess");
+        System.out.printf("Average time: %,d\n", time);
     }
 
     private static char[][] GetWords(){
