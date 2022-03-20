@@ -1,7 +1,6 @@
 package com.tsumiki;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +11,7 @@ public class Main {
         TestProtoGuess();
     }
 
-    private static final int iters = 10000;
+    private static final int iters = 1000;
     private static void TestApplyGuess(){
         long time = 0;
         for(int i = 0; i < iters; i++){
@@ -72,20 +71,5 @@ public class Main {
             i.getAndIncrement();
         });
         return words;
-    }
-
-    // Marks the time since the last time this function was called.
-    // And then prints it.
-    // Doesn't do anything if this is the first call.
-    private static long lastMark = 0;
-    private static void MarkTime(){
-        if(lastMark == 0){
-            lastMark = System.nanoTime();
-        }
-        else{
-            long nextMark = System.nanoTime();
-            System.out.printf("Time: %,d\n", nextMark-lastMark);
-            lastMark = nextMark;
-        }
     }
 }
