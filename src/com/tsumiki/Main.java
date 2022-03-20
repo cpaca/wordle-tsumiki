@@ -66,6 +66,10 @@ public class Main {
         out = out && cons.test("among", new byte[] {0,0,0,1,0});
         out = out && cons.test("nicer", new byte[] {1,0,0,2,1});
         out = out && cons.test("rebel", new byte[] {2,2,0,2,0});
+        out = out && cons.test("renew", new byte[] {2,2,2,2,2});
+
+        // Using non-words now just to test edge cases.
+        out = out && cons.test("anney", new byte[] {1,1,2,0,2});
 
         return out;
     }
