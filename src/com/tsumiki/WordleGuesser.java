@@ -37,14 +37,21 @@ public class WordleGuesser {
         // If we do it like this, it's still O(n) time, despite adding n elements
         // However, removing elements is O(1) time.
         // As opposed to ArrayList, where removing elements is O(n) time.
-        _answers = new LinkedList<>(Arrays.asList(answers));
+        //
+        //
+        //
+        // Update: ArrayList might be better here; if we create a new list instead of modifying the existing one
+        // then destroying the existing one when we need to modify it
+        // it might be faster
+        _answers = new ArrayList<>(Arrays.asList(answers));
     }
 
     // A note about states:
     // State 0 represents "This letter is not here."
     // State 1 represents "This letter is here, but not in this position."
     // State 2 represents "This letter is in this word."
-    public void ApplyGuess(char[] inGuess, byte[] inState){
+    public void ApplyGuess(final char[] inGuess, final byte[] inState){
+        System.out.println(inGuess);
         if(inGuess.length != WORDLEN || inState.length != WORDLEN){
             return; // Invalid input.
         }
@@ -56,34 +63,32 @@ public class WordleGuesser {
 
         // Handle the two-states.
         // This is faster than handling the one-states and zero-states, so it's done first.
-        ArrayList<char[]> toRemove = new ArrayList<>();
+        ArrayList<char[]> twoStateFilteredAnswers = new ArrayList<>();
         for(char[] word:_answers){
+            boolean validWord = true;
             for(int i = 0; i < WORDLEN; i++){
                 // Note: The following comment is simplified into one if statement.
                 // Run the truth table on your own.
                 /*
                 // First, handle the state=2 case:
-                if( (state[i]==2) && (guess[i] == word[i]) ) {code}
+                if( (state[i]==2) && (guess[i] == word[i]) ) {valid index}
                 // Then handle the non state = 2 case:
-                if( (state[i]!=2) && (guess[i] != word[i]) ) {code}
+                if( (state[i]!=2) && (guess[i] != word[i]) ) {valid index}
                  */
-                if( (state[i]==2) == (guess[i] == word[i])){
-
-                } else {
-                    // Remove the word because it's invalid.
-                    toRemove.add(word);
-                    break; // breaks through only one level, not all of them.
+                if( (state[i]==2) != (guess[i] == word[i])){
+                    validWord = false;
+                    break; // word is invalid, speed things up with this
                 }
             }
-        }
-        
-        for(char[] wordToRemove:toRemove){
-            _answers.remove(wordToRemove);
+
+            if(validWord){
+                twoStateFilteredAnswers.add(word);
+            }
         }
 
-        toRemove.clear();
+        List<char[]> oneStateFilteredAnswers = new ArrayList<>();
         // Handle the 1-states and 0-states.
-        for(char[] word : _answers){
+        for(char[] word : twoStateFilteredAnswers){
             byte[] theorstate = new byte[WORDLEN];
             for(int h = 0; h < WORDLEN_SQ; h++){
                 int i = h/WORDLEN;
@@ -105,21 +110,27 @@ public class WordleGuesser {
                 }
             }
 
+            boolean validWord = true;
             for(int i = 0; i < WORDLEN; i++){
                 // Note:
                 // Mod 2 is done because theorstate only has states 0 and 1
                 // But state has states 0, 1, and 2. (theorstate uses 0s instead of 2s.)
                 // So I need to turn the 0s into 2s, hence, %2.
                 if(theorstate[i] != (state[i]%2)){
-                    toRemove.add(word);
+                    // Invalid word
+                    validWord = false;
                     break;
                 }
             }
+
+            if(validWord){
+                oneStateFilteredAnswers.add(word);
+            }
         }
 
-        for(char[] wordToRemove:toRemove){
-            _answers.remove(wordToRemove);
-        }
+        // just... ignore the fact that this drops the existing _answers
+        // GC will handle picking that up
+        _answers = oneStateFilteredAnswers;
     }
 
     public List<char[]> getAnswers() {

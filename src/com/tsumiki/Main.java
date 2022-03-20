@@ -9,7 +9,11 @@ public class Main {
     public static void main(String[] args) {
         WordleGuesser wordle = new WordleGuesser(GetWords());
         System.out.println(wordle.getAnswers().size());
+
+        MarkTime();
         wordle.ApplyGuess("adieu".toCharArray(),new byte[]{1,0,0,1,1});
+        MarkTime();
+
         System.out.println(wordle.getAnswers().size());
         wordle.ApplyGuess("snort".toCharArray(),new byte[]{2,0,0,0,1});
         System.out.println(wordle.getAnswers().size());
@@ -48,5 +52,20 @@ public class Main {
             i.getAndIncrement();
         });
         return words;
+    }
+
+    // Marks the time since the last time this function was called.
+    // And then prints it.
+    // Doesn't do anything if this is the first call.
+    private static long lastMark = 0;
+    private static void MarkTime(){
+        if(lastMark == 0){
+            lastMark = System.nanoTime();
+        }
+        else{
+            long nextMark = System.nanoTime();
+            System.out.printf("Time: %,d\n", nextMark-lastMark);
+            lastMark = nextMark;
+        }
     }
 }
