@@ -177,6 +177,24 @@ public class WordleGuesser {
                         // guess[i] could never equal word[i], or else it wouldn't enter this for loop.
 
                         if (guess[i] == word[j]) {
+
+                            // THOUGHTS FOR FUTURE SELF:
+                            // Instead of using theorstate[i] = 1
+                            // What if you used if(state[i] != 1){validWord = false;}
+                            //
+                            // Issue to consider:
+                            // What about the 1-states in the state array that do NOT get considered?
+                            // What to do about those?
+                            //
+                            // Possible answer to solution:
+                            //      Keep theorstate for the above if statement, but use the new code to speed things up
+                            //
+                            //      Use state, and set it to 5 to represent "this 1-state has been checked"
+                            //      Setting to 5 instead of 3 or 4 means a % 4 operation can be done
+                            //      Which is computationally VERY FAST
+                            //      If the compiler doesn't make it very fast
+                            //      Just do a num && 0x03 operation, or num && 0b00...0011
+
                             theorstate[i] = 1;
 
                             // Holy shit. IntelliJ with the MASSIVE carry.
