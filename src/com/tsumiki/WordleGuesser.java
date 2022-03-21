@@ -86,8 +86,15 @@ public class WordleGuesser {
 
         List<char[]> filteredWords = new ArrayList<>();
         for(char[] word : _answers){
+            boolean IsAllow = Main.EqualCharArrays(word, "allow".toCharArray());
+            if(IsAllow){
+                System.out.println("Allow found");
+
+            }
+
             boolean validWord = true;
             byte[] theorstate = new byte[WORDLEN];
+            byte[] test = new byte[WORDLEN];
             for(int i = 0; i < WORDLEN; i++){
                 if( (state[i] == 2) && (guess[i] == word[i]) ){
                     // State=2 case, and the word is valid.
@@ -105,13 +112,13 @@ public class WordleGuesser {
                     for(int j = 0; j < WORDLEN; j++){
                         // Already processed by the one-state
                         // Ignore
-                        if(theorstate[j] != 0){
+                        if(test[j] != 0){
                             continue;
                         }
 
                         // Already processed by the two-state
                         // Ignore
-                        if(state[j] != 0){
+                        if(state[j]/2 != 0){
                             continue;
                         }
 
@@ -141,6 +148,7 @@ public class WordleGuesser {
                             //      Just do a num && 0x03 operation, or num && 0b00...0011
 
                             theorstate[i] = 1;
+                            test[j] = 1;
 
                             // Holy shit. IntelliJ with the MASSIVE carry.
                             // Hadn't even considered this before.

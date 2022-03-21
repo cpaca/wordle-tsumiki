@@ -9,41 +9,12 @@ import java.util.function.Predicate;
 public class Main {
 
     public static void main(String[] args){
-        System.out.printf("Maximum value LONG:  %,d\n", Long.MAX_VALUE);
-        System.out.printf("Current time:        %,d\n", System.nanoTime());
-        WordleGuesser wordle = new WordleGuesser(GetWords());
-        char[] word;
-        long quality;
+        Tests.TestOne();
 
-        word = wordle.FindBestGuess();
-        quality = wordle.QualifyGuess(word);
-        System.out.print("Best guess: ");
-        System.out.println(word);
-        System.out.println("Quality: " + quality + "\n");
-
-        wordle.ApplyGuess("track".toCharArray(), new byte[]{0,0,1,0,0});
-        word = wordle.FindBestGuess();
-        quality = wordle.QualifyGuess(word);
-        System.out.print("Best guess: ");
-        System.out.println(word);
-        System.out.println("Quality: " + quality + "\n");
-
-        wordle.ApplyGuess("among".toCharArray(), new byte[]{2,0,1,0,0});
-        word = wordle.FindBestGuess();
-        quality = wordle.QualifyGuess(word);
-        System.out.print("Best guess: ");
-        System.out.println(word);
-        System.out.println("Quality: " + quality + "\n");
-
-        wordle.ApplyGuess("lapse".toCharArray(), new byte[]{1,1,0,0,0});
-        word = wordle.FindBestGuess();
-        quality = wordle.QualifyGuess(word);
-        System.out.print("Best guess: ");
-        System.out.println(word);
-        System.out.println("Quality: " + quality + "\n");
+        Tests.PrintFailedTests();
     }
 
-    private static char[][] GetWords(){
+    public static char[][] GetWords(){
         ArrayList<String> wordList = new ArrayList<>();
         BufferedReader reader = null;
         try{
@@ -76,5 +47,27 @@ public class Main {
             i.getAndIncrement();
         });
         return words;
+    }
+
+    public static boolean EqualCharArrays(char[] a, char[] b){
+        if(a.length != b.length){
+            return false;
+        }
+        for(int i = 0; i < a.length; i++){
+            if(a[i] != b[i])
+                return false;
+        }
+        return true;
+    }
+
+    public static void PrintIntArray(byte[] arr){
+        System.out.print("[");
+        for(int i = 0; i < arr.length; i++){
+            System.out.print(arr[i]);
+            if(i < arr.length-1){
+                System.out.print(", ");
+            }
+        }
+        System.out.println("]");
     }
 }
