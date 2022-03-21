@@ -1,11 +1,5 @@
 package com.tsumiki;
 
-import javafx.beans.value.WritableObjectValue;
-
-import java.util.Random;
-
-import static com.tsumiki.WordleGuesser.WORDLEN;
-
 public class Tests {
 
     public static void RunTests(){
@@ -106,11 +100,11 @@ public class Tests {
     }
 
     private static void TestThree(){
-        assert EqualArrays(WordleGuesser.LongToBytes(901210), new byte[]{0,1,2,1,0});
-        assert EqualArrays(WordleGuesser.LongToBytes(900000), new byte[]{0,0,0,0,0});
-        assert EqualArrays(WordleGuesser.LongToBytes(911111), new byte[]{1,1,1,1,1});
-        assert EqualArrays(WordleGuesser.LongToBytes(922222), new byte[]{2,2,2,2,2});
-        assert EqualArrays(WordleGuesser.LongToBytes(921010), new byte[]{2,1,0,1,0});
+        assert EqualArrays(WordleGuesser.ToStateArray("01210"), new byte[]{0,1,2,1,0});
+        assert EqualArrays(WordleGuesser.ToStateArray("00000"), new byte[]{0,0,0,0,0});
+        assert EqualArrays(WordleGuesser.ToStateArray("11111"), new byte[]{1,1,1,1,1});
+        assert EqualArrays(WordleGuesser.ToStateArray("22222"), new byte[]{2,2,2,2,2});
+        assert EqualArrays(WordleGuesser.ToStateArray("21010"), new byte[]{2,1,0,1,0});
     }
 
     private static boolean EqualArrays(char[] a, String b){

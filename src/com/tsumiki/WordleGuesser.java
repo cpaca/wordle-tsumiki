@@ -306,16 +306,20 @@ public class WordleGuesser {
     public List<char[]> getAnswers() {
         return _answers;
     }
-    // Recommendation:
-    // Use values like "912101"
-    // because otherwise if you have a leading 0 it treats it as octal
-    static byte[] LongToBytes(long in){
-        int index = WORDLEN - 1;
+
+    // Note:
+    // When the string is too long for the byte-array, it truncates the FIRST digits
+    // When the string is too short, the string placed at the END of the byte-array
+    // and the FIRST few digits are 0s.
+    static byte[] ToStateArray(String in){
+        char[] charArray = in.toCharArray();
         byte[] out = new byte[WORDLEN];
-        while(index >= 0){
-            out[index] = (byte) ((in%10)%3);
-            in /= 10; // so that each digit is a 0, 1, or 2
-            index--;
+        for(int i = WORDLEN-1; i >= 0; i--){
+            char c = charArray[i];
+            if(c < '0' || c > '2'){
+                throw new IllegalArgumentException("States can only be 0, 1, or 2. Nothing else.");
+            }
+            out[i] = (byte) (c - '0');
         }
         return out;
     }
