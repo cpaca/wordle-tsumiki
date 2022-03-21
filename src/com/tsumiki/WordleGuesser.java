@@ -86,10 +86,12 @@ public class WordleGuesser {
 
         List<char[]> filteredWords = new ArrayList<>();
         for(char[] word : _answers){
-            boolean IsAllow = Main.EqualCharArrays(word, "allow".toCharArray());
-
             boolean validWord = true;
             byte[] theorstate = new byte[WORDLEN];
+
+            // was named test because I was testing if this would pass the tests
+            // and yeah, it does
+            // dunno how tho
             byte[] test = new byte[WORDLEN];
             for(int i = 0; i < WORDLEN; i++){
                 if( (state[i] == 2) && (guess[i] == word[i]) ){
@@ -215,6 +217,11 @@ public class WordleGuesser {
         // so this is faster since it skips the initialization/adding to GC watcher/destruction set
         byte[] state = new byte[WORDLEN];
 
+        // Whether it's been proced by the 1-state on J index
+        // Note this is also set to 1 on 2-state procs
+        // Honestly I remember writing it and thinking "This is probably how to solve it, but I dunno why"
+        byte[] JIndexProc = new byte[WORDLEN];
+
         for(char[] word : _answers){
             // For the first loop, state is initialized to a bunch of 0s
             // There's a thing later on that resets state[i].
@@ -228,6 +235,7 @@ public class WordleGuesser {
             for(i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
                     state[i] = 2;
+                    JIndexProc[i] = 1;
                 }
             }
 
@@ -237,12 +245,13 @@ public class WordleGuesser {
                     continue;
                 }
                 for(int j = 0; j < WORDLEN; j++){
-                    if(state[j] != 0){
+                    if(JIndexProc[j] != 0){
                         // already handled by 1-proc or 2-proc
                         continue;
                     }
                     if (guess[i] == word[j]) {
                         state[i] = 1;
+                        JIndexProc[j] = 1;
                         break;
                     }
                 }
