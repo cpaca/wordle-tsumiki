@@ -9,17 +9,72 @@ public class Main {
     public static void main(String[] args){
         Tests.TestOne();
 
-        WordleGuesser wordle = new WordleGuesser(GetWords());
-        wordle.ApplyGuess("lares".toCharArray(), new byte[]{0,0,2,0,0});
-        wordle.ApplyGuess("sabra".toCharArray(), new byte[]{0,0,0,2,0});
-        wordle.ApplyGuess("sapor".toCharArray(), new byte[]{0,0,0,0,1});
-        wordle.ApplyGuess("savor".toCharArray(), new byte[]{0,0,0,0,1});
-        wordle.ApplyGuess("curry".toCharArray(), new byte[]{0,2,2,2,2});
-        wordle.ApplyGuess("aahed".toCharArray(), new byte[]{0,0,0,0,0});
-        wordle.ApplyGuess("gurry".toCharArray(), new byte[]{0,2,2,2,2});
-        wordle.ApplyGuess("murry".toCharArray(), new byte[]{0,2,2,2,2});
+        MultiWordleGuesser quordle = new MultiWordleGuesser(4, GetWords());
 
-        char[] word = wordle.FindBestGuess();
+        quordle.ApplyGuess("lares".toCharArray(), new byte[][]{
+                new byte[] {1,0,0,0,0},
+                new byte[] {0,0,1,1,0},
+                new byte[] {0,1,0,0,2},
+                new byte[] {0,0,0,1,1},
+        });
+
+        quordle.ApplyGuess("colly".toCharArray(), new byte[][]{
+                new byte[] {0,0,1,0,0},
+                new byte[] {2,1,0,0,0},
+                new byte[] {0,0,0,0,0},
+                new byte[] {0,1,0,0,0},
+        });
+
+        quordle.ApplyGuess("pling".toCharArray(), new byte[][]{
+                new byte[] {0,2,0,0,0},
+                new byte[] {0,0,0,2,0},
+                new byte[] {0,0,0,0,0},
+                new byte[] {0,0,0,2,0},
+        });
+
+        quordle.ApplyGuess("crone".toCharArray(), new byte[][]{
+                new byte[] {0,0,0,0,0},
+                new byte[] {2,2,2,2,2},
+                new byte[] {0,0,0,0,0},
+                new byte[] {0,0,2,2,2},
+        });
+
+        quordle.ApplyGuess("bluff".toCharArray(), new byte[][]{
+                new byte[] {0,2,2,2,2},
+                // new byte[] {2,2,2,2,2},
+                new byte[] {0,0,0,0,0},
+                new byte[] {0,0,0,0,0},
+        });
+
+        quordle.ApplyGuess("fluff".toCharArray(), new byte[][]{
+                new byte[] {2,2,2,2,2},
+                // new byte[] {2,2,2,2,2},
+                new byte[] {0,0,0,0,0},
+                new byte[] {0,0,0,0,0},
+        });
+
+        quordle.ApplyGuess("shone".toCharArray(), new byte[][]{
+                // new byte[] {2,2,2,2,2},
+                // new byte[] {2,2,2,2,2},
+                new byte[] {1,0,0,0,0},
+                new byte[] {2,0,2,2,2},
+        });
+
+        quordle.ApplyGuess("stone".toCharArray(), new byte[][]{
+                // new byte[] {2,2,2,2,2},
+                // new byte[] {2,2,2,2,2},
+                new byte[] {1,0,0,0,0},
+                new byte[] {2,2,2,2,2},
+        });
+
+        quordle.ApplyGuess("amass".toCharArray(), new byte[][]{
+                // new byte[] {2,2,2,2,2},
+                // new byte[] {2,2,2,2,2},
+                new byte[] {2,2,2,2,2},
+                // new byte[] {2,0,2,2,2},
+        });
+
+        char[] word = quordle.FindBestGuess();
         System.out.println(word);
     }
 
