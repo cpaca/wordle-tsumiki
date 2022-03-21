@@ -109,6 +109,12 @@ public class WordleGuesser {
                             continue;
                         }
 
+                        // Already processed by the two-state
+                        // Ignore
+                        if(state[j] != 0){
+                            continue;
+                        }
+
                         // Note about the I=J case:
                         // If guess[i] == word[j] AND I=J
                         // Then guess[i] == word[i]
