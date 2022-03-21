@@ -16,7 +16,6 @@ public class WordleGuesser {
     // In fact, it takes - at least - WORDLEN * 3^WORDLEN bytes to run QualifyGuess
     // While other functions are better than that, it is SITLL VERY IMPORTANT TO KNOW!
     public static final int WORDLEN = 5;
-    private static final int WORDLEN_SQ = WORDLEN * WORDLEN;
 
     // 3 to the power of WORDLEN
     // If this was a long that'd imply an array with over 2 billion elements
