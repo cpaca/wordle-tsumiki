@@ -87,10 +87,6 @@ public class WordleGuesser {
         List<char[]> filteredWords = new ArrayList<>();
         for(char[] word : _answers){
             boolean IsAllow = Main.EqualCharArrays(word, "allow".toCharArray());
-            if(IsAllow){
-                System.out.println("Allow found");
-
-            }
 
             boolean validWord = true;
             byte[] theorstate = new byte[WORDLEN];
@@ -189,13 +185,6 @@ public class WordleGuesser {
         // just... ignore the fact that this drops the existing _answers
         // GC will handle picking that up
         _answers = filteredWords;
-
-        if(_answers.size() < 500){
-            System.out.println("List of possible answers: ");
-            for(char[] word : _answers){
-                System.out.println(word);
-            }
-        }
     }
 
     // Returns the quality of a guess

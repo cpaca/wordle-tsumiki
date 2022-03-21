@@ -3,8 +3,6 @@ package com.tsumiki;
 public class Tests {
     public static void TestOne(){
         WordleGuesser wordle = new WordleGuesser(Main.GetWords());
-        char[] word;
-        long quality;
 
         assert wordle.getAnswers().size() == 12972;
 
