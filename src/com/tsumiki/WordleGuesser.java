@@ -190,7 +190,6 @@ public class WordleGuesser {
         if(inGuess.length != WORDLEN){
             return Long.MAX_VALUE; // Invalid input.
         }
-        Main.avgFlag -= System.nanoTime();
 
         char[] guess = new char[WORDLEN];
         System.arraycopy(inGuess, 0, guess, 0, WORDLEN);
@@ -214,16 +213,13 @@ public class WordleGuesser {
             Arrays.fill(state, (byte) 0);
 
             // First, check 2-states
-            Main.avgState2 -= System.nanoTime();
             for(int i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
                     state[i] = 2;
                 }
             }
-            Main.avgState2 += System.nanoTime();
 
             // Then, check 1-states
-            Main.avgState1 -= System.nanoTime();
             for(int i = 0; i < WORDLEN; i++){
                 if(state[i] == 2){
                     continue;
@@ -239,20 +235,16 @@ public class WordleGuesser {
                     }
                 }
             }
-            Main.avgState1 += System.nanoTime();
 
             // Then, find the base-3 representation
-            Main.avgBase3 -= System.nanoTime();
             int stateBase3 = 0;
             for(int i = 0; i < WORDLEN; i++){
                 stateBase3 = stateBase3*3 + state[i];
             }
-            Main.avgBase3 += System.nanoTime();
 
             // Finally, update states
             states[stateBase3]++;
         }
-        Main.avgFlag += System.nanoTime();
 
         long quality = 0;
         // Why up to 3^WORDLEN-1?
@@ -260,7 +252,6 @@ public class WordleGuesser {
         // And in cases where only one word remains we want that one word to have the highest quality
         // And in cases where exactly two words remain we want it to prioritize those two words
         // over picking any other word that would solve the difference between the two
-        Main.avgQualCalc -= System.nanoTime();
         for(int i = 0; i < THREE_POW_WORDLEN-1; i++){
             // the quality of just this state
             long stateQual = states[i];
@@ -268,7 +259,6 @@ public class WordleGuesser {
 
             quality += stateQual;
         }
-        Main.avgQualCalc += System.nanoTime();
         return quality;
     }
 

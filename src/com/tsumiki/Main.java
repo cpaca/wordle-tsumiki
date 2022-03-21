@@ -8,12 +8,6 @@ import java.util.function.Consumer;
 
 public class Main {
 
-    public static long avgState2 = 0;
-    public static long avgState1 = 0;
-    public static long avgBase3 = 0;
-    public static long avgQualCalc = 0;
-    public static long avgFlag = 0;
-
     public static void main(String[] args){
         TimeQualifier();
 
@@ -36,11 +30,6 @@ public class Main {
         System.out.printf("Maximum value LONG: %,d\n", Long.MAX_VALUE);
         System.out.printf("Current time:       %,d\n", System.nanoTime());
         System.out.printf("Total time taken:   %,d\n", time);
-        System.out.printf("Average time, st1:  %,d\n", avgState1/iters);
-        System.out.printf("Average time, st2:  %,d\n", avgState2/iters);
-        System.out.printf("Average time, base3:%,d\n", avgBase3/iters);
-        System.out.printf("Average time, qual: %,d\n", avgQualCalc/iters);
-        System.out.printf("Average time, flag: %,d\n", avgFlag/iters);
         System.out.printf("Average time taken: %,d\n", time/iters);
     }
 
