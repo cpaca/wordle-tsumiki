@@ -181,6 +181,13 @@ public class WordleGuesser {
         // just... ignore the fact that this drops the existing _answers
         // GC will handle picking that up
         _answers = filteredWords;
+
+        if(_answers.size() < 500){
+            System.out.println("List of possible answers: ");
+            for(char[] word : _answers){
+                System.out.println(word);
+            }
+        }
     }
 
     // Returns the quality of a guess
@@ -271,6 +278,23 @@ public class WordleGuesser {
             quality += stateQual;
         }
         return quality;
+    }
+
+    // Finds the best guess.
+    // This is the ONLY reason why _guesses is needed.
+    public char[] FindBestGuess(){
+        char[] bestWord = _guesses[0];
+        long bestQual = QualifyGuess(_guesses[0]);
+
+        for(char[] word : _answers){
+            long quality = QualifyGuess(word);
+            if(quality > bestQual){
+                bestWord = word;
+                bestQual = quality;
+            }
+        }
+
+        return bestWord;
     }
 
     public List<char[]> getAnswers() {

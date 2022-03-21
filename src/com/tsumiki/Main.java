@@ -11,22 +11,36 @@ public class Main {
     public static void main(String[] args){
         System.out.printf("Maximum value LONG:  %,d\n", Long.MAX_VALUE);
         System.out.printf("Current time:        %,d\n", System.nanoTime());
-        char[][] words = GetWords();
         WordleGuesser wordle = new WordleGuesser(GetWords());
+        char[] word;
+        long quality;
 
-        long minqual = Long.MAX_VALUE;
-        long total = 0;
-        for(char[] word : words){
-            long quality = wordle.QualifyGuess(word);
-            if(quality < minqual){
-                System.out.print("Better quality found: ");
-                System.out.println(word);
-                System.out.println("New quality: " + quality);
-                minqual = quality;
-            }
-            total += quality;
-        }
-        System.out.println("Average quality: " + total/words.length);
+        word = wordle.FindBestGuess();
+        quality = wordle.QualifyGuess(word);
+        System.out.print("Best guess: ");
+        System.out.println(word);
+        System.out.println("Quality: " + quality + "\n");
+
+        wordle.ApplyGuess("track".toCharArray(), new byte[]{0,0,1,0,0});
+        word = wordle.FindBestGuess();
+        quality = wordle.QualifyGuess(word);
+        System.out.print("Best guess: ");
+        System.out.println(word);
+        System.out.println("Quality: " + quality + "\n");
+
+        wordle.ApplyGuess("among".toCharArray(), new byte[]{2,0,1,0,0});
+        word = wordle.FindBestGuess();
+        quality = wordle.QualifyGuess(word);
+        System.out.print("Best guess: ");
+        System.out.println(word);
+        System.out.println("Quality: " + quality + "\n");
+
+        wordle.ApplyGuess("lapse".toCharArray(), new byte[]{1,1,0,0,0});
+        word = wordle.FindBestGuess();
+        quality = wordle.QualifyGuess(word);
+        System.out.print("Best guess: ");
+        System.out.println(word);
+        System.out.println("Quality: " + quality + "\n");
     }
 
     private static char[][] GetWords(){
