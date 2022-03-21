@@ -43,14 +43,6 @@ public class Tests {
         System.out.print("Best guess: ");
         System.out.println(word);
         System.out.println("Quality: " + quality + "\n");
-
-        if(Main.EqualCharArrays(word, "allow".toCharArray())){
-            // success
-        }
-        else{
-            // non-success
-            failedTests.add(1);
-        }
     }
 
     public static void PrintFailedTests(){
