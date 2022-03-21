@@ -216,15 +216,19 @@ public class WordleGuesser {
             // There's a thing later on that resets state[i].
             // It's right when it calculates the base-3 representation.
 
+            // I doubt it matters much
+            // but maybe this saves some time.
+            int i;
+
             // First, check 2-states
-            for(int i = 0; i < WORDLEN; i++){
+            for(i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
                     state[i] = 2;
                 }
             }
 
             // Then, check 1-states
-            for(int i = 0; i < WORDLEN; i++){
+            for(i = 0; i < WORDLEN; i++){
                 if(state[i] == 2){
                     continue;
                 }
@@ -242,96 +246,10 @@ public class WordleGuesser {
 
             // Then, find the base-3 representation
             int stateBase3 = 0;
-            for(int i = 0; i < WORDLEN; i++){
+            for(i = 0; i < WORDLEN; i++){
                 stateBase3 = stateBase3*3 + state[i];
                 // While I'm here, why not reset the state to 0s?
-                state[i] >>= 2;
-            }
-
-            // Finally, update states
-            states[stateBase3]++;
-        }
-
-        long quality = 0;
-        // Why up to 3^WORDLEN-1?
-        // Because at 22222 (base 3) it's just the exact same word
-        // And in cases where only one word remains we want that one word to have the highest quality
-        // And in cases where exactly two words remain we want it to prioritize those two words
-        // over picking any other word that would solve the difference between the two
-        for(int i = 0; i < THREE_POW_WORDLEN-1; i++){
-            // the quality of just this state
-            long stateQual = states[i];
-            stateQual *= states[i];
-
-            // I assume the compiler makes this a much faster function, anyway.
-            quality += stateQual;
-        }
-        return quality;
-    }
-
-    // Prototype:
-    // If this is better than QualifyGuess()
-    // Then I'll use this one instead.
-    public long ProtoQualifyGuess(final char[] inGuess){
-        if(inGuess.length != WORDLEN){
-            return Long.MAX_VALUE; // Invalid input.
-        }
-
-        char[] guess = new char[WORDLEN];
-        System.arraycopy(inGuess, 0, guess, 0, WORDLEN);
-
-        // Note about how states are stored in this:
-        // State {0, 1, 2, 1, 0} can be represented as 01210
-        // State {1, 2, 2, 1, 0} can be represented as 12210
-        // etc.
-        // Note that all of these representations can be done base-3
-        // So 01210 can be represented in base 3
-        // as (3^4)*0 + (3^3)*1 + (3^2)*2 + (3^1)*1 + (3^0)*0
-        // And state 12210 can be represented in base 3
-        // as (3^4)*1 + (3^3)*2 + (3^2)*2 + (3^1)*1 + (3^0)*0
-        int[] states = new int[THREE_POW_WORDLEN];
-
-        // State, base-3 representation
-        // It's probably easier on the GC to do this
-        // Since Java initializes it all to 0s anyway, which is the same thing Arrays.fill() does
-        // so this is faster since it skips the initialization/adding to GC watcher/destruction set
-        byte[] state = new byte[WORDLEN];
-
-        for(char[] word : _answers){
-            // For the first loop, state is initialized to a bunch of 0s
-            // There's a thing later on that resets state[i].
-            // It's right when it calculates the base-3 representation.
-
-            // First, check 2-states
-            for(int i = 0; i < WORDLEN; i++){
-                if(guess[i] == word[i]){
-                    state[i] = 2;
-                }
-            }
-
-            // Then, check 1-states
-            for(int i = 0; i < WORDLEN; i++){
-                if(state[i] == 2){
-                    continue;
-                }
-                for(int j = 0; j < WORDLEN; j++){
-                    if(state[j] != 0){
-                        // already handled by 1-proc or 2-proc
-                        continue;
-                    }
-                    if (guess[i] == word[j]) {
-                        state[i] = 1;
-                        break;
-                    }
-                }
-            }
-
-            // Then, find the base-3 representation
-            int stateBase3 = 0;
-            for(int i = 0; i < WORDLEN; i++){
-                stateBase3 = stateBase3*3 + state[i];
-                // While I'm here, why not reset the state to 0s?
-                state[i] >>= 2;
+                state[i] = 0;
             }
 
             // Finally, update states
