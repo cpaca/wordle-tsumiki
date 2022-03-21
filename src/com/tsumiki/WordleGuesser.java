@@ -206,11 +206,15 @@ public class WordleGuesser {
         int[] states = new int[THREE_POW_WORDLEN];
 
         // State, base-3 representation
-        // According to timing func creating this array was taking the bulk of the time?!
+        // It's probably easier on the GC to do this
+        // Since Java initializes it all to 0s anyway, which is the same thing Arrays.fill() does
+        // so this is faster since it skips the initialization/adding to GC watcher/destruction set
         byte[] state = new byte[WORDLEN];
 
         for(char[] word : _answers){
-            Arrays.fill(state, (byte) 0);
+            // For the first loop, state is initialized to a bunch of 0s
+            // There's a thing later on that resets state[i].
+            // It's right when it calculates the base-3 representation.
 
             // First, check 2-states
             for(int i = 0; i < WORDLEN; i++){
@@ -240,6 +244,8 @@ public class WordleGuesser {
             int stateBase3 = 0;
             for(int i = 0; i < WORDLEN; i++){
                 stateBase3 = stateBase3*3 + state[i];
+                // While I'm here, why not reset the state to 0s?
+                state[i] >>= 2;
             }
 
             // Finally, update states
@@ -257,6 +263,7 @@ public class WordleGuesser {
             long stateQual = states[i];
             stateQual *= states[i];
 
+            // I assume the compiler makes this a much faster function, anyway.
             quality += stateQual;
         }
         return quality;
