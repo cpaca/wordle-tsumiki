@@ -153,10 +153,6 @@ public class WordleGuesser {
         _answers = filteredWords;
     }
 
-    public void ProtoApplyGuess(final char[] inGuess, final byte[] inState){
-        ApplyGuess(inGuess, inState);
-    }
-
     public List<char[]> getAnswers() {
         return _answers;
     }
