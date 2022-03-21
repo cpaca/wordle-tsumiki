@@ -13,6 +13,9 @@ public class Main {
 
     public static void main(String[] args){
         TimeQualifier();
+
+        System.out.printf("%,d\n", avgState1);
+        System.out.printf("%,d\n", avgState2);
     }
 
     private static final int iters = 10000;
