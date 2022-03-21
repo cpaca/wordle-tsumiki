@@ -223,6 +223,10 @@ public class WordleGuesser {
                     continue;
                 }
                 for(int j = 0; j < WORDLEN; j++){
+                    if(state[j] != 0){
+                        // already handled by 1-proc or 2-proc
+                        continue;
+                    }
                     if (guess[i] == word[j]) {
                         state[i] = 1;
                         break;
