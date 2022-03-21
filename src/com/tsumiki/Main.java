@@ -4,17 +4,24 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Main {
 
     public static void main(String[] args){
+        TestProtoQualifier();
+        System.out.printf("Maximum value LONG:  %,d\n", Long.MAX_VALUE);
+        System.out.printf("Current time:        %,d\n", System.nanoTime());
         TimeQualifier();
+        TimeProtoQualifier();
 
     }
 
     private static final int iters = 10000;
     private static void TimeQualifier(){
+        System.gc();
+        System.runFinalization(); // for some reason without these the proto time was MUCH longer
+
         long time = 0;
         WordleGuesser wordle = new WordleGuesser(GetWords());
         char[][] words = GetWords();
@@ -27,10 +34,28 @@ public class Main {
             time += System.nanoTime();
         }
 
-        System.out.printf("Maximum value LONG: %,d\n", Long.MAX_VALUE);
-        System.out.printf("Current time:       %,d\n", System.nanoTime());
-        System.out.printf("Total time taken:   %,d\n", time);
-        System.out.printf("Average time taken: %,d\n", time/iters);
+        System.out.printf("Qual Total time taken:    %,d\n", time);
+        System.out.printf("Qual Average time taken:  %,d\n", time/iters);
+    }
+
+    private static void TimeProtoQualifier(){
+        System.gc();
+        System.runFinalization(); // for some reason without these the proto time was MUCH longer
+
+        long time = 0;
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+        char[][] words = GetWords();
+        Random r = new Random(System.nanoTime());
+        for(int i = 0; i < iters; i++){
+            int wordIndex = r.nextInt(words.length);
+            char[] word = words[wordIndex];
+            time -= System.nanoTime();
+            wordle.ProtoQualifyGuess(word);
+            time += System.nanoTime();
+        }
+
+        System.out.printf("Proto Total time taken:   %,d\n", time);
+        System.out.printf("Proto Average time taken: %,d\n", time/iters);
     }
 
     private static void TestProtoQualifier(){
@@ -38,25 +63,36 @@ public class Main {
         // Code from when I first made the qualifier
         // Modify it a tiny bit if you want to test the proto-qualifier
         WordleGuesser wordle = new WordleGuesser(GetWords());
-        Consumer<String> qualifier = (String s) ->{
-            System.out.println("Quality of " + s + ": " + wordle.QualifyGuess(s.toCharArray()));
+        Predicate<String> qualifier = (String s) ->{
+            long qual1 = wordle.QualifyGuess(s.toCharArray());
+            long protoqual = wordle.ProtoQualifyGuess(s.toCharArray());
+            if(qual1 != protoqual){
+                System.out.println("Failed qualification on " + s);
+                return false;
+            }
+            return true;
         };
 
-        qualifier.accept("adieu");
-        qualifier.accept("among");
-        qualifier.accept("track");
-        qualifier.accept("audio");
-        qualifier.accept("night");
-        qualifier.accept("peace");
+        boolean out = qualifier.test("adieu");
+        out = out && qualifier.test("among");
+        out = out && qualifier.test("track");
+        out = out && qualifier.test("audio");
+        out = out && qualifier.test("night");
+        out = out && qualifier.test("peace");
 
         System.out.println();
-        System.out.println("Testing the saute results.");
         // Quick test case
         wordle.ApplyGuess("adieu".toCharArray(), new byte[]{1,0,0,1,1});
-        qualifier.accept("snort");
+        out = out && qualifier.test("snort");
         wordle.ApplyGuess("snort".toCharArray(), new byte[]{2,0,0,0,1});
-        qualifier.accept("among");
-        qualifier.accept("saute");
+        out = out && qualifier.test("among");
+        out = out && qualifier.test("saute");
+        if(out){
+            System.out.println("Successful test!");
+        }
+        else{
+            System.out.println("ERRORERRORERROR\nERRORERRORERROR\nERRORERRORERROR\n");
+        }
     }
 
     private static char[][] GetWords(){
