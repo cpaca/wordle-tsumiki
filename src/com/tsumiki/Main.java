@@ -11,6 +11,22 @@ public class Main {
     public static void main(String[] args){
         System.out.printf("Maximum value LONG:  %,d\n", Long.MAX_VALUE);
         System.out.printf("Current time:        %,d\n", System.nanoTime());
+        char[][] words = GetWords();
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+
+        long minqual = Long.MAX_VALUE;
+        long total = 0;
+        for(char[] word : words){
+            long quality = wordle.QualifyGuess(word);
+            if(quality < minqual){
+                System.out.print("Better quality found: ");
+                System.out.println(word);
+                System.out.println("New quality: " + quality);
+                minqual = quality;
+            }
+            total += quality;
+        }
+        System.out.println("Average quality: " + total/words.length);
     }
 
     private static char[][] GetWords(){
