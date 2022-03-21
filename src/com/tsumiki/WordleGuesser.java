@@ -285,7 +285,7 @@ public class WordleGuesser {
 
         for(char[] word : _answers){
             long quality = QualifyGuess(word);
-            if(quality > bestQual){
+            if(quality < bestQual){
                 bestWord = word;
                 bestQual = quality;
             }

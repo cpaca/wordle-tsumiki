@@ -2,14 +2,25 @@ package com.tsumiki;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 
 public class Main {
 
     public static void main(String[] args){
         Tests.TestOne();
+
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+        wordle.ApplyGuess("lares".toCharArray(), new byte[]{0,0,2,0,0});
+        wordle.ApplyGuess("sabra".toCharArray(), new byte[]{0,0,0,2,0});
+        wordle.ApplyGuess("sapor".toCharArray(), new byte[]{0,0,0,0,1});
+        wordle.ApplyGuess("savor".toCharArray(), new byte[]{0,0,0,0,1});
+        wordle.ApplyGuess("curry".toCharArray(), new byte[]{0,2,2,2,2});
+        wordle.ApplyGuess("aahed".toCharArray(), new byte[]{0,0,0,0,0});
+        wordle.ApplyGuess("gurry".toCharArray(), new byte[]{0,2,2,2,2});
+        wordle.ApplyGuess("murry".toCharArray(), new byte[]{0,2,2,2,2});
+
+        char[] word = wordle.FindBestGuess();
+        System.out.println(word);
     }
 
     public static char[][] GetWords(){
