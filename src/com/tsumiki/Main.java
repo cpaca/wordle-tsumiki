@@ -8,6 +8,9 @@ import java.util.function.Consumer;
 
 public class Main {
 
+    public static long avgState2 = 0;
+    public static long avgState1 = 0;
+
     public static void main(String[] args){
         TimeQualifier();
     }

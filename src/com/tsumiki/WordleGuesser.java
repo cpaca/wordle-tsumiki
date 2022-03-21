@@ -206,14 +206,16 @@ public class WordleGuesser {
             byte[] state = new byte[WORDLEN];
 
             // First, check 2-states
+            Main.avgState2 -= System.nanoTime();
             for(int i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
                     state[i] = 2;
-                    continue;
                 }
             }
+            Main.avgState2 += System.nanoTime();
 
             // Then, check 1-states
+            Main.avgState1 -= System.nanoTime();
             for(int i = 0; i < WORDLEN; i++){
                 if(state[i] == 2){
                     continue;
@@ -225,6 +227,7 @@ public class WordleGuesser {
                     }
                 }
             }
+            Main.avgState1 += System.nanoTime();
 
             // Then, find the base-3 representation
             int stateBase3 = 0;
