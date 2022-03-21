@@ -57,11 +57,17 @@ public class MultiWordleGuesser {
     }
 
     public long QualifyGuess(final char[] guess){
-        long out = 0;
+        // sum of each wordle's qualities
+        long qualSum = 0;
         for(WordleGuesser wordle : wordles){
             // Note: We need a size-adjusted quality
-            // So gaining more information is designated as a "higher quality"
-            long quality = Long.MAX_VALUE;
+            // So gaining more information is designated as a "better quality"
+            // Division by 256 done to avoid the AAHED issue
+            // This apparantly also had the resulting effect of changing some of the answers?!
+            // What the fuck?!
+            // If you don't believe me, check Quordle seed 1647894193511, the first 3 words are Lares Sooty Spank
+            // After that it changes, try dividing with 256 versus with 1
+            long quality = Long.MAX_VALUE/256;
 
             long worstQual = wordle.getAnswers().size();
             worstQual *= worstQual;
@@ -74,14 +80,14 @@ public class MultiWordleGuesser {
                 return 0;
             }
             quality *= thisQual;
-            out += quality;
+            qualSum += quality;
 
             // Integer overflow
-            if(out < 0){
+            if(quality < 0){
                 return Long.MAX_VALUE;
             }
         }
-        return out;
+        return qualSum;
     }
 
     // Note: This function will not always return the best guess.
@@ -116,7 +122,7 @@ public class MultiWordleGuesser {
         int minIndex = 0;
         for(int i = 1; i < qualities.length; i++){
             long quality = qualities[i];
-            if(quality < minQual){
+            if(quality <= minQual){
                 minIndex = i;
                 minQual = quality;
             }
