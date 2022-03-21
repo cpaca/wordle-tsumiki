@@ -306,4 +306,17 @@ public class WordleGuesser {
     public List<char[]> getAnswers() {
         return _answers;
     }
+    // Recommendation:
+    // Use values like "912101"
+    // because otherwise if you have a leading 0 it treats it as octal
+    static byte[] LongToBytes(long in){
+        int index = WORDLEN - 1;
+        byte[] out = new byte[WORDLEN];
+        while(index >= 0){
+            out[index] = (byte) ((in%10)%3);
+            in /= 10; // so that each digit is a 0, 1, or 2
+            index--;
+        }
+        return out;
+    }
 }
