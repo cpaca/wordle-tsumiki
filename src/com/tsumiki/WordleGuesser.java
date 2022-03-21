@@ -10,8 +10,20 @@ import java.util.List;
 // And takes a guess as to which one is the best one.
 public class WordleGuesser {
 
+    // WARNING:
+    // WARNING:
+    // This function is memory intensive with respect to WORDLEN
+    // In fact, it takes - at least - WORDLEN * 3^WORDLEN bytes to run QualifyGuess
+    // While other functions are better than that, it is SITLL VERY IMPORTANT TO KNOW!
     public static final int WORDLEN = 5;
     private static final int WORDLEN_SQ = WORDLEN * WORDLEN;
+
+    // 3 to the power of WORDLEN
+    // If this was a long that'd imply an array with over 2 billion elements
+    // Yeah, no.
+    // Besides, as long as the words are kept under 19 letters long
+    // this won't cause issues.
+    private static int THREE_POW_WORDLEN = 1;
 
     private char[][] _guesses;
     private List<char[]> _answers;
@@ -44,6 +56,20 @@ public class WordleGuesser {
         // then destroying the existing one when we need to modify it
         // it might be faster
         _answers = new ArrayList<>(Arrays.asList(answers));
+
+        // Init 3^WORDLEN
+        if(THREE_POW_WORDLEN == 1){
+            for(int i = 0; i < WORDLEN; i++){
+                long prev = THREE_POW_WORDLEN;
+                THREE_POW_WORDLEN *= 3;
+
+                // Note: The IDE will say "This is always true!"
+                // It's not. Remember, integer overflows exist.
+                if(THREE_POW_WORDLEN < prev){
+                    throw new IllegalStateException("The word length is too big, please choose a smaller one.");
+                }
+            }
+        }
     }
 
     // A note about states:
@@ -151,6 +177,80 @@ public class WordleGuesser {
         // just... ignore the fact that this drops the existing _answers
         // GC will handle picking that up
         _answers = filteredWords;
+    }
+
+    // Returns the quality of a guess
+    // Note, this is like golf, so you want this to return as SMALL of a value as possible.
+    // If the input is invalid, this returns the worst possible quality.
+    public long QualifyGuess(final char[] inGuess){
+        if(inGuess.length != WORDLEN){
+            return Long.MAX_VALUE; // Invalid input.
+        }
+
+        char[] guess = new char[WORDLEN];
+        System.arraycopy(inGuess, 0, guess, 0, WORDLEN);
+
+        // Note about how states are stored in this:
+        // State {0, 1, 2, 1, 0} can be represented as 01210
+        // State {1, 2, 2, 1, 0} can be represented as 12210
+        // etc.
+        // Note that all of these representations can be done base-3
+        // So 01210 can be represented in base 3
+        // as (3^4)*0 + (3^3)*1 + (3^2)*2 + (3^1)*1 + (3^0)*0
+        // And state 12210 can be represented in base 3
+        // as (3^4)*1 + (3^3)*2 + (3^2)*2 + (3^1)*1 + (3^0)*0
+        int[] states = new int[THREE_POW_WORDLEN];
+
+        for(char[] word : _answers){
+            // State, base 3 representation.
+            byte[] state = new byte[WORDLEN];
+
+            // First, check 2-states
+            for(int i = 0; i < WORDLEN; i++){
+                if(guess[i] == word[i]){
+                    state[i] = 2;
+                    continue;
+                }
+            }
+
+            // Then, check 1-states
+            for(int i = 0; i < WORDLEN; i++){
+                if(state[i] == 2){
+                    continue;
+                }
+                for(int j = 0; j < WORDLEN; j++){
+                    if (guess[i] == word[j]) {
+                        state[i] = 1;
+                        break;
+                    }
+                }
+            }
+
+            // Then, find the base-3 representation
+            int stateBase3 = 0;
+            for(int i = 0; i < WORDLEN; i++){
+                stateBase3 = stateBase3*3 + state[i];
+            }
+
+            // Finally, update states
+            states[stateBase3]++;
+        }
+
+        long quality = 0;
+        // Why up to 3^WORDLEN-1?
+        // Because at 22222 (base 3) it's just the exact same word
+        // And in cases where only one word remains we want that one word to have the highest quality
+        // And in cases where exactly two words remain we want it to prioritize those two words
+        // over picking any other word that would solve the difference between the two
+        for(int i = 0; i < THREE_POW_WORDLEN-1; i++){
+            // the quality of just this state
+            long stateQual = states[i];
+            stateQual *= states[i];
+
+            quality += stateQual;
+        }
+        return quality;
+
     }
 
     public List<char[]> getAnswers() {

@@ -3,12 +3,31 @@ package com.tsumiki;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 public class Main {
 
     public static void main(String[] args){
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+        Consumer<String> qualifier = (String s) ->{
+            System.out.println("Quality of " + s + ": " + wordle.QualifyGuess(s.toCharArray()));
+        };
 
+        qualifier.accept("adieu");
+        qualifier.accept("among");
+        qualifier.accept("track");
+        qualifier.accept("audio");
+        qualifier.accept("night");
+        qualifier.accept("peace");
+
+        System.out.println();
+        System.out.println("Testing the saute results.");
+        // Quick test case
+        wordle.ApplyGuess("adieu".toCharArray(), new byte[]{1,0,0,1,1});
+        qualifier.accept("snort");
+        wordle.ApplyGuess("snort".toCharArray(), new byte[]{2,0,0,0,1});
+        qualifier.accept("among");
+        qualifier.accept("saute");
     }
 
     private static char[][] GetWords(){
