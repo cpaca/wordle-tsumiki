@@ -14,6 +14,10 @@ public class WordleGuesser {
     // This function is memory intensive with respect to WORDLEN
     // In fact, it takes - at least - WORDLEN * 3^WORDLEN bytes to run QualifyGuess
     // While other functions are better than that, it is SITLL VERY IMPORTANT TO KNOW!
+    // For this reason
+    // (And also because the code breaks...)
+    // WORDLEN is capped at 16.
+    // Beyond 16, this class has undefined behavior.
     public static final int WORDLEN = 5;
 
     // 3 to the power of WORDLEN
@@ -37,6 +41,11 @@ public class WordleGuesser {
 
             if(word.length != WORDLEN){
                 throw new IllegalArgumentException();
+            }
+            for(char c : word){
+                if(c < 'a' || c > 'z'){
+                    throw new IllegalArgumentException("WordleGuesser only accepts lowercase letters as input.");
+                }
             }
 
             System.arraycopy(word, 0, _guesses[i], 0, WORDLEN);
@@ -74,9 +83,22 @@ public class WordleGuesser {
     // State 0 represents "This letter is not here."
     // State 1 represents "This letter is here, but not in this position."
     // State 2 represents "This letter is in this word."
+
+    /**
+     *
+     * @param inGuess - The guess you've made
+     * @param inState - The state, with blacks (not found) represented with 0, yellows (found, wrong position)
+     *                represented with a 1, and greens (found, right position) represented with a two
+     */
     public void ApplyGuess(final char[] inGuess, final byte[] inState){
         if(inGuess.length != WORDLEN || inState.length != WORDLEN){
             return; // Invalid input.
+        }
+
+        for(char c : inGuess){
+            if(c < 'a' || c > 'z'){
+                throw new IllegalArgumentException("WordleGuesser only accepts lowercase letters as input");
+            }
         }
 
         char[] guess = new char[WORDLEN];
@@ -85,94 +107,62 @@ public class WordleGuesser {
         System.arraycopy(inState, 0, state, 0, WORDLEN);
 
         List<char[]> filteredWords = new ArrayList<>();
+        int[] OneIndices = new int[26]; // indices of the one-states
         for(char[] word : _answers){
             boolean validWord = true;
-            byte[] theorstate = new byte[WORDLEN];
+            Arrays.fill(OneIndices, 0);
 
-            // was named test because I was testing if this would pass the tests
-            // and yeah, it does
-            // dunno how tho
-            byte[] test = new byte[WORDLEN];
-            for(int i = 0; i < WORDLEN; i++){
-                if( (state[i] == 2) && (guess[i] == word[i]) ){
-                    // State=2 case, and the word is valid.
-                    // This index is valid.
+            // note that a is 0, b is 1, etc.
+            for(int i = WORDLEN-1; i >= 0; i--){
+                if( (state[i] == 2) && (word[i] == guess[i]) ){
+                    // 2-state
+                    // And the letter matches
+                    // Move on
                 }
-                // Then handle the state != 2 case:
-                else if( (state[i] != 2) && (guess[i] != word[i]) ){
-                    // State is NOT 2 case, but it does pass the state=2 checks
-                    // But we still need to run the state = 0 and 1 case.
+                else if( (state[i] != 2) && (word[i] != guess[i]) ){
+                    // Not a 2-state and the letters don't match
+                    // Save the index for the one-state
 
-                    // Next, calculate the "theoretic state"
-                    // which is like the actual state, but 2s are 0s instead
-                    // This is helpful because it allows us to only look at the 1-cases
-                    // Fortunately, Java initializes arrays to be full of 0s.
-                    for(int j = 0; j < WORDLEN; j++){
-                        // Already processed by the one-state
-                        // Ignore
-                        if(test[j] != 0){
-                            continue;
-                        }
-
-                        // Already processed by the two-state
-                        // Ignore
-                        if(state[j]/2 != 0){
-                            continue;
-                        }
-
-                        // Note about the I=J case:
-                        // If guess[i] == word[j] AND I=J
-                        // Then guess[i] == word[i]
-                        // If you recall the if statement a few lines above that enters this for loop
-                        // guess[i] could never equal word[i], or else it wouldn't enter this for loop.
-
-                        if (guess[i] == word[j]) {
-
-                            // THOUGHTS FOR FUTURE SELF:
-                            // Instead of using theorstate[i] = 1
-                            // What if you used if(state[i] != 1){validWord = false;}
-                            //
-                            // Issue to consider:
-                            // What about the 1-states in the state array that do NOT get considered?
-                            // What to do about those?
-                            //
-                            // Possible answer to solution:
-                            //      Keep theorstate for the above if statement, but use the new code to speed things up
-                            //
-                            //      Use state, and set it to 5 to represent "this 1-state has been checked"
-                            //      Setting to 5 instead of 3 or 4 means a % 4 operation can be done
-                            //      Which is computationally VERY FAST
-                            //      If the compiler doesn't make it very fast
-                            //      Just do a num && 0x03 operation, or num && 0b00...0011
-
-                            theorstate[i] = 1;
-                            test[j] = 1;
-
-                            // Holy shit. IntelliJ with the MASSIVE carry.
-                            // Hadn't even considered this before.
-                            break;
-                        }
-                    }
+                    // Count how many times each letter appears
+                    int letter = word[i] - 'a';
+                    OneIndices[letter]++;
                 }
                 else{
-                    // Fails the state = 2 check.
+                    // Either it's a 2-state and the letters don't match
+                    // Or it's not a 2-state and the letters match
+                    // Either way it's an invalid word
                     validWord = false;
                     break;
                 }
             }
 
+            // Run the 1-states
             if(validWord){
-                // Passed all the two-states
-                // Now need to 100% confirm the one-states
                 for(int i = 0; i < WORDLEN; i++){
-                    // Note:
-                    // Mod 2 is done because theorstate only has states 0 and 1
-                    // But state has states 0, 1, and 2. (theorstate uses 0s instead of 2s.)
-                    // So I need to turn the 0s into 2s, hence, %2.
-                    if(theorstate[i] != (state[i]%2)){
-                        // Invalid word
-                        validWord = false;
-                        break;
+                    if(state[i] == 2){
+                        continue;
+                    }
+                    int letter = guess[i] - 'a';
+                    if(OneIndices[letter] != 0){
+                        // Letter found, but not at position i
+                        // So this is a 1-index
+                        OneIndices[letter]--;
+                        if(state[i] == 0){
+                            // Expected a 0-index, got a 1-index
+                            // Invalid
+                            validWord = false;
+                            break;
+                        }
+                    }
+                    else{
+                        // Letter not found anywhere in the wrod
+                        // So this is a 0-index
+                        if(state[i] == 1){
+                            // Expected a 1-index, got a 0-index
+                            // Invalid
+                            validWord = false;
+                            break;
+                        }
                     }
                 }
             }

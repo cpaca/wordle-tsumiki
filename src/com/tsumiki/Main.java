@@ -24,7 +24,7 @@ public class Main {
         for(int i = 0; i < iters; i++){
             char[] word = words[r.nextInt(words.length)];
             totalTime -= System.nanoTime();
-            wordle.QualifyGuess(word);
+            wordle.ApplyGuess("pryse".toCharArray(), new byte[]{0,0,0,1,1});
             totalTime += System.nanoTime();
         }
         System.out.println("Long.MAX_VALUE: " + format.format(Long.MAX_VALUE));
