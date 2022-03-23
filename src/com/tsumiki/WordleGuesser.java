@@ -207,15 +207,16 @@ public class WordleGuesser {
         // so this is faster since it skips the initialization/adding to GC watcher/destruction set
         byte[] state = new byte[WORDLEN];
 
-        // Whether it's been proced by the 1-state on J index
-        // Note this is also set to 1 on 2-state procs
-        // Honestly I remember writing it and thinking "This is probably how to solve it, but I dunno why"
-        byte[] JIndexProc = new byte[WORDLEN];
+        // How many times the letter has appeared in the word
+        // a is 'a'-'a'=0, b is 'b'-'a' or 1, etc.
+        int[] finds = new int[26];
 
         for(char[] word : _answers){
             // For the first loop, state is initialized to a bunch of 0s
             // There's a thing later on that resets state[i].
             // It's right when it calculates the base-3 representation.
+            // Do need to reset the found letters though.
+            Arrays.fill(finds, 0);
 
             // I doubt it matters much
             // but maybe this saves some time.
@@ -224,26 +225,32 @@ public class WordleGuesser {
             // First, check 2-states
             for(i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
+                    // 2 state
                     state[i] = 2;
-                    JIndexProc[i] = 1;
+                }
+                else{
+                    // Not a 2-state
+                    // Store letter occurences for 1-state or 0-state
+                    int letter = word[i]-'a';
+                    finds[letter]++;
                 }
             }
 
-            // Then, check 1-states
             for(i = 0; i < WORDLEN; i++){
                 if(state[i] == 2){
                     continue;
                 }
-                for(int j = 0; j < WORDLEN; j++){
-                    if(JIndexProc[j] != 0){
-                        // already handled by 1-proc or 2-proc
-                        continue;
-                    }
-                    if (guess[i] == word[j]) {
-                        state[i] = 1;
-                        JIndexProc[j] = 1;
-                        break;
-                    }
+                int letter = guess[i] - 'a';
+
+                // For some reason java keeps trying to make the ternary operator version an int
+                // but this needs to be a byte
+                if(finds[letter] != 0){
+                    // Letter found!
+                    finds[letter]--;
+                    state[i] = 1;
+                }
+                else{
+                    state[i] = 0;
                 }
             }
 

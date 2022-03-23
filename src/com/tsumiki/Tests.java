@@ -11,7 +11,7 @@ public class Tests {
         RunPythonTests();
 
         TestOne();
-        TestTwo();
+        // TestTwo();
         TestThree();
     }
 
@@ -34,7 +34,11 @@ public class Tests {
         MultiWordleGuesser quordle = new MultiWordleGuesser(4, Main.GetWords());
 
         BiConsumer<String, String[]> tester = (String word, String[] states) -> {
-            assert EqualArrays(quordle.FindBestGuess(), word);
+            char[] bestGuess = quordle.FindBestGuess();
+            System.out.println(bestGuess);
+            System.out.println(quordle.QualifyGuess(bestGuess));
+            System.out.println(quordle.QualifyGuess(word.toCharArray()));
+            assert EqualArrays(bestGuess, word);
             quordle.ApplyGuess(word.toCharArray(), states);
         };
 
