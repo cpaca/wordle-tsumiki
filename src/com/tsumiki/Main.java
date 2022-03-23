@@ -12,9 +12,32 @@ public class Main {
         Tests.RunTests();
 
         TimeQualifyGuess();
+
+        /*
+        for(byte a = 0; a < 3; a++){
+            for(byte b = 0; b < 3; b++){
+                for(byte c = 0; c < 3; c++){
+                    for(byte d = 0; d < 3; d++){
+                        for(byte e = 0; e < 3; e++){
+                            byte[] state = new byte[]{a,b,c,d,e};
+                            int stateBase3 = a*81 + b*27 + c*9 + d*3 +e;
+                            WordleGuesser wordle = new WordleGuesser(GetWords());
+                            wordle.ApplyGuess("adieu".toCharArray(), state);
+                            int size = wordle.getAnswers().size();
+
+                            System.out.println("State " + stateBase3 + ", remaining words: " + size);
+                        }
+                    }
+                }
+            }
+        }
+        WordleGuesser wordle = new WordleGuesser(GetWords());
+        wordle.QualifyGuess("adieu".toCharArray());
+
+         */
     }
 
-    public static final int iters = 100000;
+    public static final int iters = 10000;
     public static void TimeQualifyGuess(){
         long totalTime = 0;
         WordleGuesser wordle = new WordleGuesser(GetWords());
@@ -24,7 +47,7 @@ public class Main {
         for(int i = 0; i < iters; i++){
             char[] word = words[r.nextInt(words.length)];
             totalTime -= System.nanoTime();
-            wordle.ApplyGuess("pryse".toCharArray(), new byte[]{0,0,0,1,1});
+            wordle.QualifyGuess(word);
             totalTime += System.nanoTime();
         }
         System.out.println("Long.MAX_VALUE: " + format.format(Long.MAX_VALUE));

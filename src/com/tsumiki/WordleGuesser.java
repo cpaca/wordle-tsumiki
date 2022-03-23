@@ -201,11 +201,12 @@ public class WordleGuesser {
         // as (3^4)*1 + (3^3)*2 + (3^2)*2 + (3^1)*1 + (3^0)*0
         int[] states = new int[THREE_POW_WORDLEN];
 
-        // State, base-3 representation
-        // It's probably easier on the GC to do this
-        // Since Java initializes it all to 0s anyway, which is the same thing Arrays.fill() does
-        // so this is faster since it skips the initialization/adding to GC watcher/destruction set
-        byte[] state = new byte[WORDLEN];
+        // State, with a weird representaation (using booleans)
+        // 2s are represented with TRUEs
+        // 0s and 1s are represented with FALSEs
+        // When 0s and 1s are calculated, they're immediately added to stateBase3
+        // so that's why we can use booleans instead of bytes here
+        boolean[] state = new boolean[WORDLEN];
 
         // How many times the letter has appeared in the word
         // a is 'a'-'a'=0, b is 'b'-'a' or 1, etc.
@@ -226,7 +227,7 @@ public class WordleGuesser {
             for(i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
                     // 2 state
-                    state[i] = 2;
+                    state[i] = true;
                 }
                 else{
                     // Not a 2-state
@@ -236,8 +237,11 @@ public class WordleGuesser {
                 }
             }
 
+            int stateBase3 = 0;
             for(i = 0; i < WORDLEN; i++){
-                if(state[i] == 2){
+                if(state[i]){
+                    state[i] = false; // reset it for the next run
+                    stateBase3 = stateBase3 * 3 + 2;
                     continue;
                 }
                 int letter = guess[i] - 'a';
@@ -247,19 +251,11 @@ public class WordleGuesser {
                 if(finds[letter] != 0){
                     // Letter found!
                     finds[letter]--;
-                    state[i] = 1;
+                    stateBase3 = stateBase3*3 + 1; // 1-state, add 1
                 }
                 else{
-                    state[i] = 0;
+                    stateBase3 *= 3; // 0-state, add 0
                 }
-            }
-
-            // Then, find the base-3 representation
-            int stateBase3 = 0;
-            for(i = 0; i < WORDLEN; i++){
-                stateBase3 = stateBase3*3 + state[i];
-                // While I'm here, why not reset the state to 0s?
-                state[i] = 0;
             }
 
             // Finally, update states
