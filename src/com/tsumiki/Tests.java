@@ -1,10 +1,15 @@
 package com.tsumiki;
 
+import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
+
+import static com.tsumiki.PythonTests.RunPythonTests;
 
 public class Tests {
 
     public static void RunTests(){
+        RunPythonTests();
+
         TestOne();
         TestTwo();
         TestThree();
