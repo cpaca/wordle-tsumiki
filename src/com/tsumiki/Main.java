@@ -14,7 +14,7 @@ public class Main {
         TimeQualifyGuess();
     }
 
-    public static final int iters = 10000;
+    public static final int iters = 100000;
     public static void TimeQualifyGuess(){
         long totalTime = 0;
         WordleGuesser wordle = new WordleGuesser(GetWords());
