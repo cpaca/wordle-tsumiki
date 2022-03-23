@@ -11,7 +11,6 @@ public class Tests {
         RunPythonTests();
 
         TestOne();
-        // TestTwo();
         TestThree();
     }
 
@@ -28,68 +27,6 @@ public class Tests {
 
         wordle.ApplyGuess("lapse".toCharArray(), new byte[]{1,1,0,0,0});
         assert wordle.getAnswers().size() == 6;
-    }
-
-    private static void TestTwo(){
-        MultiWordleGuesser quordle = new MultiWordleGuesser(4, Main.GetWords());
-
-        BiConsumer<String, String[]> tester = (String word, String[] states) -> {
-            char[] bestGuess = quordle.FindBestGuess();
-            System.out.println(bestGuess);
-            System.out.println(quordle.QualifyGuess(bestGuess));
-            System.out.println(quordle.QualifyGuess(word.toCharArray()));
-            assert EqualArrays(bestGuess, word);
-            quordle.ApplyGuess(word.toCharArray(), states);
-        };
-
-        tester.accept("lares", new String[]{
-                "00001",
-                "00200",
-                "01000",
-                "01001",
-        });
-
-        tester.accept("sooty", new String[]{
-                "12010",
-                "02020",
-                "00000",
-                "20000",
-        });
-
-        tester.accept("spank", new String[]{
-                "10000",
-                "00000",
-                "00200",
-                "22222",
-        });
-
-        tester.accept("bhaji", new String[]{
-                "00001",
-                "01000",
-                "02200",
-                //"22222",
-        });
-
-        tester.accept("chaff", new String[]{
-                "00010",
-                "01000",
-                "22222",
-                //"22222",
-        });
-
-        tester.accept("worth", new String[]{
-                "02010",
-                "22222",
-                //"22222",
-                //"22222",
-        });
-
-        tester.accept("foist", new String[]{
-                "22222",
-                //"22222",
-                //"22222",
-                //"22222",
-        });
     }
 
     private static void TestThree(){
