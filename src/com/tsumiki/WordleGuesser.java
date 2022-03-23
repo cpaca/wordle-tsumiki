@@ -210,18 +210,27 @@ public class WordleGuesser {
 
         // How many times the letter has appeared in the word
         // a is 'a'-'a'=0, b is 'b'-'a' or 1, etc.
-        int[] finds = new int[26];
+        byte[] finds = new byte[26];
+
+        int[] resets = new int[WORDLEN];
 
         for(char[] word : _answers){
             // For the first loop, state is initialized to a bunch of 0s
             // There's a thing later on that resets state[i].
             // It's right when it calculates the base-3 representation.
-            // Do need to reset the found letters though.
-            Arrays.fill(finds, 0);
 
             // I doubt it matters much
             // but maybe this saves some time.
             int i;
+
+            // We do need to reset the found letters though.
+            // And given that we only find - at most - 5 characters
+            // filling the entire thing with 0s would be 26 ops, minimum
+            // So this saves about 21 ops:
+            // probably more since it doesn't call a method and Arrays doesn't call checks
+            for(i = 0; i < WORDLEN; i++){
+                finds[resets[i]] = 0;
+            }
 
             // First, check 2-states
             for(i = 0; i < WORDLEN; i++){
@@ -234,28 +243,26 @@ public class WordleGuesser {
                     // Store letter occurences for 1-state or 0-state
                     int letter = word[i]-'a';
                     finds[letter]++;
+                    resets[i] = letter;
                 }
             }
 
             int stateBase3 = 0;
             for(i = 0; i < WORDLEN; i++){
+                stateBase3 *= 3; // doing this anyway no matter what, so let's do it ahead of time.
                 if(state[i]){
                     state[i] = false; // reset it for the next run
-                    stateBase3 = stateBase3 * 3 + 2;
+                    stateBase3 += 2;
                     continue;
                 }
                 int letter = guess[i] - 'a';
 
-                // For some reason java keeps trying to make the ternary operator version an int
-                // but this needs to be a byte
                 if(finds[letter] != 0){
                     // Letter found!
                     finds[letter]--;
-                    stateBase3 = stateBase3*3 + 1; // 1-state, add 1
+                    stateBase3++; // 1-state, add 1
                 }
-                else{
-                    stateBase3 *= 3; // 0-state, add 0
-                }
+                // 0 state is adding 0, aka doing nothing
             }
 
             // Finally, update states
