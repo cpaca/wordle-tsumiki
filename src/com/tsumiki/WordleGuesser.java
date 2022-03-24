@@ -190,6 +190,12 @@ public class WordleGuesser {
         char[] guess = new char[WORDLEN];
         System.arraycopy(inGuess, 0, guess, 0, WORDLEN);
 
+        // Lots of for loops.
+        // An iterating variable ends up being needed to speed up executions.
+        // I doubt it matters much
+        // but it probably saves some time.
+        int i;
+
         // Note about how states are stored in this:
         // State {0, 1, 2, 1, 0} can be represented as 01210
         // State {1, 2, 2, 1, 0} can be represented as 12210
@@ -212,18 +218,23 @@ public class WordleGuesser {
         // a is 'a'-'a'=0, b is 'b'-'a' or 1, etc.
         byte[] finds = new byte[26];
 
+        // Actually, you only need to reset letters which appear in the guess.
+        // You can totally ignore how often letters which don't appear in the guess occur.
+        // Note, this has a side effect:
+        // finds[] for values NOT in the guess will be affected by what words came before.
+        // And I'm fine with that.
         int[] resets = new int[WORDLEN];
+        for(i = 0; i < WORDLEN; i++){
+            int letter = guess[i] - 'a';
+            resets[i] = letter;
+        }
 
         for(char[] word : _answers){
             // For the first loop, state is initialized to a bunch of 0s
             // There's a thing later on that resets state[i].
             // It's right when it calculates the base-3 representation.
 
-            // I doubt it matters much
-            // but maybe this saves some time.
-            int i;
-
-            // We do need to reset the found letters though.
+            // We do need to reset the letters though.
             // And given that we only find - at most - 5 characters
             // filling the entire thing with 0s would be 26 ops, minimum
             // So this saves about 21 ops:
@@ -243,7 +254,6 @@ public class WordleGuesser {
                     // Store letter occurences for 1-state or 0-state
                     int letter = word[i]-'a';
                     finds[letter]++;
-                    resets[i] = letter;
                 }
             }
 
@@ -252,7 +262,7 @@ public class WordleGuesser {
                 stateBase3 *= 3; // doing this anyway no matter what, so let's do it ahead of time.
                 if(state[i]){
                     state[i] = false; // reset it for the next run
-                    stateBase3 += 2;
+                    stateBase3 += 2; // 2-state, so add 2
                     continue;
                 }
                 int letter = guess[i] - 'a';
@@ -275,7 +285,7 @@ public class WordleGuesser {
         // And in cases where only one word remains we want that one word to have the highest quality
         // And in cases where exactly two words remain we want it to prioritize those two words
         // over picking any other word that would solve the difference between the two
-        for(int i = 0; i < THREE_POW_WORDLEN-1; i++){
+        for(i = 0; i < THREE_POW_WORDLEN-1; i++){
             // the quality of just this state
             long stateQual = states[i];
             stateQual *= states[i];
