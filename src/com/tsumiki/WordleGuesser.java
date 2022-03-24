@@ -14,6 +14,10 @@ public class WordleGuesser {
     // This function is memory intensive with respect to WORDLEN
     // In fact, it takes - at least - WORDLEN * 3^WORDLEN bytes to run QualifyGuess
     // While other functions are better than that, it is SITLL VERY IMPORTANT TO KNOW!
+    // For this reason
+    // (And also because the code breaks...)
+    // WORDLEN is capped at 16.
+    // Beyond 16, this class has undefined behavior.
     public static final int WORDLEN = 5;
 
     // 3 to the power of WORDLEN
@@ -37,6 +41,11 @@ public class WordleGuesser {
 
             if(word.length != WORDLEN){
                 throw new IllegalArgumentException();
+            }
+            for(char c : word){
+                if(c < 'a' || c > 'z'){
+                    throw new IllegalArgumentException("WordleGuesser only accepts lowercase letters as input.");
+                }
             }
 
             System.arraycopy(word, 0, _guesses[i], 0, WORDLEN);
@@ -74,9 +83,22 @@ public class WordleGuesser {
     // State 0 represents "This letter is not here."
     // State 1 represents "This letter is here, but not in this position."
     // State 2 represents "This letter is in this word."
+
+    /**
+     *
+     * @param inGuess - The guess you've made
+     * @param inState - The state, with blacks (not found) represented with 0, yellows (found, wrong position)
+     *                represented with a 1, and greens (found, right position) represented with a two
+     */
     public void ApplyGuess(final char[] inGuess, final byte[] inState){
         if(inGuess.length != WORDLEN || inState.length != WORDLEN){
             return; // Invalid input.
+        }
+
+        for(char c : inGuess){
+            if(c < 'a' || c > 'z'){
+                throw new IllegalArgumentException("WordleGuesser only accepts lowercase letters as input");
+            }
         }
 
         char[] guess = new char[WORDLEN];
@@ -85,94 +107,62 @@ public class WordleGuesser {
         System.arraycopy(inState, 0, state, 0, WORDLEN);
 
         List<char[]> filteredWords = new ArrayList<>();
+        int[] OneIndices = new int[26]; // indices of the one-states
         for(char[] word : _answers){
             boolean validWord = true;
-            byte[] theorstate = new byte[WORDLEN];
+            Arrays.fill(OneIndices, 0);
 
-            // was named test because I was testing if this would pass the tests
-            // and yeah, it does
-            // dunno how tho
-            byte[] test = new byte[WORDLEN];
-            for(int i = 0; i < WORDLEN; i++){
-                if( (state[i] == 2) && (guess[i] == word[i]) ){
-                    // State=2 case, and the word is valid.
-                    // This index is valid.
+            // note that a is 0, b is 1, etc.
+            for(int i = WORDLEN-1; i >= 0; i--){
+                if( (state[i] == 2) && (word[i] == guess[i]) ){
+                    // 2-state
+                    // And the letter matches
+                    // Move on
                 }
-                // Then handle the state != 2 case:
-                else if( (state[i] != 2) && (guess[i] != word[i]) ){
-                    // State is NOT 2 case, but it does pass the state=2 checks
-                    // But we still need to run the state = 0 and 1 case.
+                else if( (state[i] != 2) && (word[i] != guess[i]) ){
+                    // Not a 2-state and the letters don't match
+                    // Save the index for the one-state
 
-                    // Next, calculate the "theoretic state"
-                    // which is like the actual state, but 2s are 0s instead
-                    // This is helpful because it allows us to only look at the 1-cases
-                    // Fortunately, Java initializes arrays to be full of 0s.
-                    for(int j = 0; j < WORDLEN; j++){
-                        // Already processed by the one-state
-                        // Ignore
-                        if(test[j] != 0){
-                            continue;
-                        }
-
-                        // Already processed by the two-state
-                        // Ignore
-                        if(state[j]/2 != 0){
-                            continue;
-                        }
-
-                        // Note about the I=J case:
-                        // If guess[i] == word[j] AND I=J
-                        // Then guess[i] == word[i]
-                        // If you recall the if statement a few lines above that enters this for loop
-                        // guess[i] could never equal word[i], or else it wouldn't enter this for loop.
-
-                        if (guess[i] == word[j]) {
-
-                            // THOUGHTS FOR FUTURE SELF:
-                            // Instead of using theorstate[i] = 1
-                            // What if you used if(state[i] != 1){validWord = false;}
-                            //
-                            // Issue to consider:
-                            // What about the 1-states in the state array that do NOT get considered?
-                            // What to do about those?
-                            //
-                            // Possible answer to solution:
-                            //      Keep theorstate for the above if statement, but use the new code to speed things up
-                            //
-                            //      Use state, and set it to 5 to represent "this 1-state has been checked"
-                            //      Setting to 5 instead of 3 or 4 means a % 4 operation can be done
-                            //      Which is computationally VERY FAST
-                            //      If the compiler doesn't make it very fast
-                            //      Just do a num && 0x03 operation, or num && 0b00...0011
-
-                            theorstate[i] = 1;
-                            test[j] = 1;
-
-                            // Holy shit. IntelliJ with the MASSIVE carry.
-                            // Hadn't even considered this before.
-                            break;
-                        }
-                    }
+                    // Count how many times each letter appears
+                    int letter = word[i] - 'a';
+                    OneIndices[letter]++;
                 }
                 else{
-                    // Fails the state = 2 check.
+                    // Either it's a 2-state and the letters don't match
+                    // Or it's not a 2-state and the letters match
+                    // Either way it's an invalid word
                     validWord = false;
                     break;
                 }
             }
 
+            // Run the 1-states
             if(validWord){
-                // Passed all the two-states
-                // Now need to 100% confirm the one-states
                 for(int i = 0; i < WORDLEN; i++){
-                    // Note:
-                    // Mod 2 is done because theorstate only has states 0 and 1
-                    // But state has states 0, 1, and 2. (theorstate uses 0s instead of 2s.)
-                    // So I need to turn the 0s into 2s, hence, %2.
-                    if(theorstate[i] != (state[i]%2)){
-                        // Invalid word
-                        validWord = false;
-                        break;
+                    if(state[i] == 2){
+                        continue;
+                    }
+                    int letter = guess[i] - 'a';
+                    if(OneIndices[letter] != 0){
+                        // Letter found, but not at position i
+                        // So this is a 1-index
+                        OneIndices[letter]--;
+                        if(state[i] == 0){
+                            // Expected a 0-index, got a 1-index
+                            // Invalid
+                            validWord = false;
+                            break;
+                        }
+                    }
+                    else{
+                        // Letter not found anywhere in the wrod
+                        // So this is a 0-index
+                        if(state[i] == 1){
+                            // Expected a 1-index, got a 0-index
+                            // Invalid
+                            validWord = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -200,6 +190,12 @@ public class WordleGuesser {
         char[] guess = new char[WORDLEN];
         System.arraycopy(inGuess, 0, guess, 0, WORDLEN);
 
+        // Lots of for loops.
+        // An iterating variable ends up being needed to speed up executions.
+        // I doubt it matters much
+        // but it probably saves some time.
+        int i;
+
         // Note about how states are stored in this:
         // State {0, 1, 2, 1, 0} can be represented as 01210
         // State {1, 2, 2, 1, 0} can be represented as 12210
@@ -211,58 +207,72 @@ public class WordleGuesser {
         // as (3^4)*1 + (3^3)*2 + (3^2)*2 + (3^1)*1 + (3^0)*0
         int[] states = new int[THREE_POW_WORDLEN];
 
-        // State, base-3 representation
-        // It's probably easier on the GC to do this
-        // Since Java initializes it all to 0s anyway, which is the same thing Arrays.fill() does
-        // so this is faster since it skips the initialization/adding to GC watcher/destruction set
-        byte[] state = new byte[WORDLEN];
+        // State, with a weird representaation (using booleans)
+        // 2s are represented with TRUEs
+        // 0s and 1s are represented with FALSEs
+        // When 0s and 1s are calculated, they're immediately added to stateBase3
+        // so that's why we can use booleans instead of bytes here
+        boolean[] state = new boolean[WORDLEN];
 
-        // Whether it's been proced by the 1-state on J index
-        // Note this is also set to 1 on 2-state procs
-        // Honestly I remember writing it and thinking "This is probably how to solve it, but I dunno why"
-        byte[] JIndexProc = new byte[WORDLEN];
+        // How many times the letter has appeared in the word
+        // a is 'a'-'a'=0, b is 'b'-'a' or 1, etc.
+        byte[] finds = new byte[26];
+
+        // Actually, you only need to reset letters which appear in the guess.
+        // You can totally ignore how often letters which don't appear in the guess occur.
+        // Note, this has a side effect:
+        // finds[] for values NOT in the guess will be affected by what words came before.
+        // And I'm fine with that.
+        int[] resets = new int[WORDLEN];
+        for(i = 0; i < WORDLEN; i++){
+            int letter = guess[i] - 'a';
+            resets[i] = letter;
+        }
 
         for(char[] word : _answers){
             // For the first loop, state is initialized to a bunch of 0s
             // There's a thing later on that resets state[i].
             // It's right when it calculates the base-3 representation.
 
-            // I doubt it matters much
-            // but maybe this saves some time.
-            int i;
+            // We do need to reset the letters though.
+            // And given that we only find - at most - 5 characters
+            // filling the entire thing with 0s would be 26 ops, minimum
+            // So this saves about 21 ops:
+            // probably more since it doesn't call a method and Arrays doesn't call checks
+            for(i = 0; i < WORDLEN; i++){
+                finds[resets[i]] = 0;
+            }
 
             // First, check 2-states
             for(i = 0; i < WORDLEN; i++){
                 if(guess[i] == word[i]){
-                    state[i] = 2;
-                    JIndexProc[i] = 1;
+                    // 2 state
+                    state[i] = true;
+                }
+                else{
+                    // Not a 2-state
+                    // Store letter occurences for 1-state or 0-state
+                    int letter = word[i]-'a';
+                    finds[letter]++;
                 }
             }
 
-            // Then, check 1-states
-            for(i = 0; i < WORDLEN; i++){
-                if(state[i] == 2){
-                    continue;
-                }
-                for(int j = 0; j < WORDLEN; j++){
-                    if(JIndexProc[j] != 0){
-                        // already handled by 1-proc or 2-proc
-                        continue;
-                    }
-                    if (guess[i] == word[j]) {
-                        state[i] = 1;
-                        JIndexProc[j] = 1;
-                        break;
-                    }
-                }
-            }
-
-            // Then, find the base-3 representation
             int stateBase3 = 0;
             for(i = 0; i < WORDLEN; i++){
-                stateBase3 = stateBase3*3 + state[i];
-                // While I'm here, why not reset the state to 0s?
-                state[i] = 0;
+                stateBase3 *= 3; // doing this anyway no matter what, so let's do it ahead of time.
+                if(state[i]){
+                    state[i] = false; // reset it for the next run
+                    stateBase3 += 2; // 2-state, so add 2
+                    continue;
+                }
+                int letter = guess[i] - 'a';
+
+                if(finds[letter] != 0){
+                    // Letter found!
+                    finds[letter]--;
+                    stateBase3++; // 1-state, add 1
+                }
+                // 0 state is adding 0, aka doing nothing
             }
 
             // Finally, update states
@@ -275,7 +285,7 @@ public class WordleGuesser {
         // And in cases where only one word remains we want that one word to have the highest quality
         // And in cases where exactly two words remain we want it to prioritize those two words
         // over picking any other word that would solve the difference between the two
-        for(int i = 0; i < THREE_POW_WORDLEN-1; i++){
+        for(i = 0; i < THREE_POW_WORDLEN-1; i++){
             // the quality of just this state
             long stateQual = states[i];
             stateQual *= states[i];
