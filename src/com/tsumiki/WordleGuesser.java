@@ -179,6 +179,34 @@ public class WordleGuesser {
         _answers = filteredWords;
     }
 
+    /**
+     *
+     * @param guess - The guess you've made
+     * @param state - The state, with blacks (not found) represented with 0, yellows (found, wrong position)
+     *                represented with a 1, and greens (found, right position) represented with a two
+     */
+    public void ApplyGuess(char[] guess, String state){
+        this.ApplyGuess(guess, ToStateArray(state));
+    }
+    /**
+     *
+     * @param guess - The guess you've made
+     * @param state - The state, with blacks (not found) represented with 0, yellows (found, wrong position)
+     *                represented with a 1, and greens (found, right position) represented with a two
+     */
+    public void ApplyGuess(String guess, byte[] state){
+        this.ApplyGuess(guess.toCharArray(), state);
+    }
+    /**
+     *
+     * @param guess - The guess you've made
+     * @param state - The state, with blacks (not found) represented with 0, yellows (found, wrong position)
+     *                represented with a 1, and greens (found, right position) represented with a two
+     */
+    public void ApplyGuess(String guess, String state){
+        this.ApplyGuess(guess.toCharArray(), ToStateArray(state));
+    }
+
     // Returns the quality of a guess
     // Note, this is like golf, so you want this to return as SMALL of a value as possible.
     // If the input is invalid, this returns the worst possible quality.

@@ -9,32 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main {
 
     public static void main(String[] args){
-        Tests.RunTests();
+        // Tests.RunTests();
 
-        TimeQualifyGuess();
+        MultiWordleGuesser wordle = new MultiWordleGuesser(8, GetWords());
 
-        /*
-        for(byte a = 0; a < 3; a++){
-            for(byte b = 0; b < 3; b++){
-                for(byte c = 0; c < 3; c++){
-                    for(byte d = 0; d < 3; d++){
-                        for(byte e = 0; e < 3; e++){
-                            byte[] state = new byte[]{a,b,c,d,e};
-                            int stateBase3 = a*81 + b*27 + c*9 + d*3 +e;
-                            WordleGuesser wordle = new WordleGuesser(GetWords());
-                            wordle.ApplyGuess("adieu".toCharArray(), state);
-                            int size = wordle.getAnswers().size();
-
-                            System.out.println("State " + stateBase3 + ", remaining words: " + size);
-                        }
-                    }
-                }
-            }
-        }
-        WordleGuesser wordle = new WordleGuesser(GetWords());
-        wordle.QualifyGuess("adieu".toCharArray());
-
-         */
+        char[] bestGuess = wordle.FindBestGuess();
+        System.out.print("Best guess: ");
+        System.out.println(bestGuess);
     }
 
     public static final int iters = 10000;

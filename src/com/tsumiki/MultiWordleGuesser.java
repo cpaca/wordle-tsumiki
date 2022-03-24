@@ -47,13 +47,16 @@ public class MultiWordleGuesser {
 
         DefaultFirstGuess = false;
     }
-
     public void ApplyGuess(final char[] guess, final String[] stringStates){
         byte[][] states = new byte[stringStates.length][WordleGuesser.WORDLEN];
         for(int i = 0; i < stringStates.length; i++){
             states[i] = WordleGuesser.ToStateArray(stringStates[i]);
         }
         ApplyGuess(guess, states);
+    }
+
+    public void ApplyGuess(final String guess, final String[] states){
+        this.ApplyGuess(guess.toCharArray(), states);
     }
 
     public long QualifyGuess(final char[] guess){
