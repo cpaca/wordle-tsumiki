@@ -2,7 +2,7 @@ package com.tsumiki;
 
 import java.lang.reflect.Method;
 
-public class PythonTests {
+class PythonTests {
 
     static void RunPythonTests(){
         try {

@@ -7,9 +7,9 @@ import java.util.function.Consumer;
 
 import static com.tsumiki.PythonTests.RunPythonTests;
 
-public class Tests {
+class Tests {
 
-    public static void RunTests(){
+    static void RunTests(){
         RunPythonTests();
 
         TestOne();
