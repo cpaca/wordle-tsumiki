@@ -3,19 +3,53 @@ package com.tsumiki;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
 
+    private static int GuessNumber = 1;
+
+    private static WordleGuesser globalWordle = null;
+
     public static void main(String[] args){
         // Tests.RunTests();
+        // GuessInformation("audio", "10010");
+        // GuessInformation("wails", "01100");
 
-        MultiWordleGuesser wordle = new MultiWordleGuesser(8, GetWords());
+    }
 
-        char[] bestGuess = wordle.FindBestGuess();
-        System.out.print("Best guess: ");
-        System.out.println(bestGuess);
+    public static void GuessInformation(String guess, String colors){
+        if(globalWordle == null){
+            globalWordle = new WordleGuesser(GetWords());
+        }
+        GuessInformation(globalWordle, guess, colors);
+    }
+
+    public static void GuessInformation(WordleGuesser wordle, String guess, String colors){
+        wordle.ApplyGuess(guess, colors);
+
+        char[] word = wordle.FindBestGuess();
+        List<char[]> remainingAnswers = wordle.getAnswers();
+
+        System.out.println("After guess #" + GuessNumber + ", which is ||" + guess + "||:");
+        System.out.println("AI requests ||" + new String(word) + "|| be played next.");
+        System.out.println("AI states there are ||" + remainingAnswers.size() + "|| answers remaining.");
+        if(remainingAnswers.size() < 10){
+            StringBuilder answers = new StringBuilder();
+            for(int i = 0; i < remainingAnswers.size(); i++){
+                if(i != 0){
+                    answers.append(", ");
+                }
+                answers.append(new String(remainingAnswers.get(i)));
+            }
+
+            System.out.println("||Remaining possible answers: " + answers + "||");
+        }
+        System.out.println();
+
+        GuessNumber++;
     }
 
     public static final int iters = 10000;
