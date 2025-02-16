@@ -14,10 +14,10 @@ public class Main {
     private static WordleGuesser globalWordle = null;
 
     public static void main(String[] args){
-        // Tests.RunTests();
-        // GuessInformation("audio", "10010");
-        // GuessInformation("wails", "01100");
-
+        Tests.RunTests();
+        GuessInformation("lares", "01011");
+        GuessInformation("staph", "20200");
+        GuessInformation("emove", "00022");
     }
 
     public static void GuessInformation(String guess, String colors){
@@ -70,11 +70,11 @@ public class Main {
         System.out.println("Average time:   " + format.format(totalTime/iters));
     }
 
-    public static char[][] GetWords(){
+    public static char[][] GetWords(String filename){
         ArrayList<String> wordList = new ArrayList<>();
         BufferedReader reader = null;
         try{
-            reader = new BufferedReader(new FileReader("words.txt"));
+            reader = new BufferedReader(new FileReader(filename));
             String line = reader.readLine();
             while(line != null){
                 wordList.add(line);
@@ -94,14 +94,18 @@ public class Main {
         }
 
         char[][] words = new char[wordList.size()][5];
-        AtomicInteger i = new AtomicInteger();
 
-        wordList.forEach((String s) ->{
-            char[] word = s.toCharArray();
-            words[i.get()] = word;
+        // Why did I use list.forEach here when I need the index?
+        for(int i = 0; i < wordList.size(); i++) {
+            String word = wordList.get(i);
+            char[] chars = word.toCharArray();
+            words[i] = chars;
+        }
 
-            i.getAndIncrement();
-        });
         return words;
+    }
+
+    public static char[][] GetWords() {
+        return GetWords("words.txt");
     }
 }

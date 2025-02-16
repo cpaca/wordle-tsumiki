@@ -27,7 +27,7 @@ public class WordleGuesser {
     // this won't cause issues.
     private static int THREE_POW_WORDLEN = 1;
 
-    private char[][] _guesses;
+    private final char[][] _guesses;
     private List<char[]> _answers;
 
     public WordleGuesser(char[][] guesses){
@@ -330,7 +330,7 @@ public class WordleGuesser {
         char[] bestWord = _guesses[0];
         long bestQual = QualifyGuess(_guesses[0]);
 
-        for(char[] word : _answers){
+        for(char[] word : _guesses){
             long quality = QualifyGuess(word);
             if(quality < bestQual){
                 bestWord = word;
